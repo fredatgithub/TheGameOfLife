@@ -6,6 +6,36 @@
         MinHeight="480" MinWidth="700"
         Background="#101820"
         Foreground="#E8F0F2">
+    <Window.Resources>
+        <Style x:Key="GreenActionButton" TargetType="Button">
+            <Setter Property="Background" Value="#26734D" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderBrush" Value="#39A96B" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#328C5E" />
+                    <Setter Property="BorderBrush" Value="#53C982" />
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#1D5C3D" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="BlueActionButton" TargetType="Button">
+            <Setter Property="Background" Value="#245B8F" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderBrush" Value="#3986C8" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2F74B2" />
+                    <Setter Property="BorderBrush" Value="#5AA5E3" />
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#1B456D" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
     <Grid Margin="28">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -24,9 +54,9 @@
                            Margin="0,4,0,0" Foreground="#9FB2B8" FontSize="14" />
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Content="Charger" Click="LoadButton_Click" Padding="16,9"
+                <Button Content="Charger" Click="LoadButton_Click" Style="{StaticResource GreenActionButton}" Padding="16,9"
                         Margin="0,0,8,0" />
-                <Button Content="Enregistrer" Click="SaveButton_Click" Padding="16,9" />
+                <Button Content="Enregistrer" Click="SaveButton_Click" Style="{StaticResource GreenActionButton}" Padding="16,9" />
             </StackPanel>
         </Grid>
 
@@ -42,12 +72,12 @@
 
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                 <Button x:Name="PlayButton" Content="Démarrer" Click="PlayButton_Click"
-                        Padding="16,9" Margin="0,0,8,0" />
-                <Button Content="Avancer" Click="StepButton_Click" Padding="16,9"
+                        Style="{StaticResource BlueActionButton}" Padding="16,9" Margin="0,0,8,0" />
+                <Button Content="Avancer" Click="StepButton_Click" Style="{StaticResource BlueActionButton}" Padding="16,9"
                         Margin="0,0,8,0" />
-                <Button Content="Aléatoire" Click="RandomButton_Click" Padding="16,9"
+                <Button Content="Aléatoire" Click="RandomButton_Click" Style="{StaticResource BlueActionButton}" Padding="16,9"
                         Margin="0,0,8,0" />
-                <Button Content="Effacer" Click="ClearButton_Click" Padding="16,9" />
+                <Button Content="Effacer" Click="ClearButton_Click" Style="{StaticResource BlueActionButton}" Padding="16,9" />
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
