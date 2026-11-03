@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -126,6 +127,115 @@ namespace TheGameOfLife
         Height > 0;
     }
 
+    private void SaveButton_Click(object sender, RoutedEventArgs e)
+    {
+      var dialog = new SaveFileDialog
+      {
+        Title = "Enregistrer une partie",
+        Filter = "Fichier du Jeu de la vie (*.json)|*.json",
+        DefaultExt = ".json",
+        AddExtension = true,
+        FileName = $"FredGameOfLife-{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.json"
+      };
+
+      if (dialog.ShowDialog(this) != true)
+      {
+        return;
+      }
+
+      try
+      {
+        var savedCells = new bool[LifeBoard.Columns * LifeBoard.Rows];
+        for (var y = 0; y < LifeBoard.Rows; y++)
+        {
+          for (var x = 0; x < LifeBoard.Columns; x++)
+          {
+            savedCells[y * LifeBoard.Columns + x] = _cells[x, y];
+          }
+        }
+
+        var save = new GameSave(
+          LifeBoard.Columns,
+          LifeBoard.Rows,
+          _generation,
+          CountLiveCells(),
+          savedCells);
+        File.WriteAllText(dialog.FileName, JsonSerializer.Serialize(save));
+      }
+      catch (IOException)
+      {
+        ShowGameSaveError("La partie n'a pas pu être enregistrée dans le fichier choisi.");
+      }
+      catch (UnauthorizedAccessException)
+      {
+        ShowGameSaveError("L'accès au fichier choisi a été refusé. La partie n'a pas été enregistrée.");
+      }
+    }
+
+    private void LoadButton_Click(object sender, RoutedEventArgs e)
+    {
+      var dialog = new OpenFileDialog
+      {
+        Title = "Charger une partie",
+        Filter = "Fichier du Jeu de la vie (*.json)|*.json",
+        CheckFileExists = true
+      };
+
+      if (dialog.ShowDialog(this) != true)
+      {
+        return;
+      }
+
+      try
+      {
+        var save = JsonSerializer.Deserialize<GameSave>(File.ReadAllText(dialog.FileName));
+        if (save is null ||
+            save.Columns != LifeBoard.Columns ||
+            save.Rows != LifeBoard.Rows ||
+            save.Generation < 0 ||
+            save.Cells is null ||
+            save.Cells.Length != LifeBoard.Columns * LifeBoard.Rows)
+        {
+          ShowGameSaveError("Ce fichier ne contient pas une partie valide pour cette grille.");
+          return;
+        }
+
+        var loadedCells = new bool[LifeBoard.Columns, LifeBoard.Rows];
+        for (var y = 0; y < LifeBoard.Rows; y++)
+        {
+          for (var x = 0; x < LifeBoard.Columns; x++)
+          {
+            loadedCells[x, y] = save.Cells[y * LifeBoard.Columns + x];
+          }
+        }
+
+        _timer.Stop();
+        PlayButton.Content = "Démarrer";
+        _cells = loadedCells;
+        _generation = save.Generation;
+        RefreshBoard();
+      }
+      catch (JsonException)
+      {
+        ShowGameSaveError("Le fichier choisi est illisible ou son format JSON est invalide.");
+      }
+      catch (IOException)
+      {
+        ShowGameSaveError("Le fichier choisi n'a pas pu être lu.");
+      }
+      catch (UnauthorizedAccessException)
+      {
+        ShowGameSaveError("L'accès au fichier choisi a été refusé.");
+      }
+    }
+
+    private void ShowGameSaveError(string message)
+    {
+      MessageBox.Show(this, message, Title, MessageBoxButton.OK, MessageBoxImage.Error);
+    }
+
+    private sealed record GameSave(int Columns, int Rows, int Generation, int Population, bool[] Cells);
+
     private void PlayButton_Click(object sender, RoutedEventArgs e)
     {
       if (_timer.IsEnabled)
@@ -230,16 +340,21 @@ namespace TheGameOfLife
 
     private void UpdateStats()
     {
-      var population = 0;
+      StatsText.Text = $"Génération {_generation}   ·   {CountLiveCells()} cellules vivantes";
+    }
+
+    private int CountLiveCells()
+    {
+      var count = 0;
       foreach (var alive in _cells)
       {
         if (alive)
         {
-          population++;
+          count++;
         }
       }
 
-      StatsText.Text = $"Génération {_generation}   ·   {population} cellules vivantes";
+      return count;
     }
 
     private void UpdateSpeed()
