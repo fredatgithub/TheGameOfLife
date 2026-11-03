@@ -67,13 +67,21 @@ namespace TheGameOfLife
           WindowState = WindowState.Maximized;
         }
       }
-      catch (FileNotFoundException)
+      catch (FileNotFoundException fileNotFoundException)
       {
+        if (fileNotFoundException.FileName != WindowSettingsPath)
+        {
+          ShowSettingsWarning("Le fichier de position de la fenêtre est introuvable. La fenêtre utilisera sa taille par défaut.");
+        }
       }
-      catch (DirectoryNotFoundException)
+      catch (DirectoryNotFoundException directoryNotFoundException)
       {
+        if (directoryNotFoundException.Message.Contains(WindowSettingsPath))
+        {
+          ShowSettingsWarning("Le fichier de position de la fenêtre est introuvable. La fenêtre utilisera sa taille par défaut.");
+        }
       }
-      catch (JsonException)
+      catch (JsonException jsonException)
       {
         ShowSettingsWarning("Le fichier de position de la fenêtre est illisible. La fenêtre utilisera sa taille par défaut.");
       }
