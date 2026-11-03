@@ -12,7 +12,8 @@ namespace TheGameOfLife
     public MainWindow()
     {
       InitializeComponent();
-
+      var version = typeof(MainWindow).Assembly.GetName().Version!;
+      Title = $"Fred's the game of life V{version.Major}.{version.Minor}.{version.Build}";
       Board.CellClicked += OnCellClicked;
       SpeedSlider.ValueChanged += (_, _) => UpdateSpeed();
       _timer.Tick += (_, _) => AdvanceGeneration();
