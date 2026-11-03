@@ -15,4 +15,6 @@ Une implémentation WPF de l'automate cellulaire de Conway.
 
 La grille mesure 60 × 35 cellules. Les cellules situées au-delà de ses bords sont considérées comme mortes. Une cellule vivante survit avec deux ou trois voisines vivantes ; une cellule morte naît avec exactement trois voisines vivantes.
 
+La simulation se met en pause si la grille revient à un état déjà rencontré au cours des 10 000 dernières générations, ce qui détecte également les oscillateurs.
+
 La taille et la position de la fenêtre sont enregistrées à sa fermeture dans `window-settings.json`, à côté de l'application, puis restaurées au prochain démarrage. L'application doit donc avoir le droit d'écriture dans son répertoire.

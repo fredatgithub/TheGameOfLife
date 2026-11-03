@@ -8,9 +8,12 @@ namespace TheGameOfLife
 {
   public partial class MainWindow: Window
   {
+    private const int MaxRememberedStates = 10_000;
     private static readonly string WindowSettingsPath = Path.Combine(AppContext.BaseDirectory, "window-settings.json");
 
     private readonly DispatcherTimer _timer = new();
+    private readonly HashSet<string> _seenStates = new(StringComparer.Ordinal);
+    private readonly Queue<string> _stateHistory = new();
     private bool[,] _cells = new bool[LifeBoard.Columns, LifeBoard.Rows];
     private int _generation;
 
@@ -213,6 +216,7 @@ namespace TheGameOfLife
         PlayButton.Content = "Démarrer";
         _cells = loadedCells;
         _generation = save.Generation;
+        ResetCycleDetection();
         RefreshBoard();
       }
       catch (JsonException)
@@ -245,6 +249,7 @@ namespace TheGameOfLife
       }
       else
       {
+        ResetCycleDetection();
         _timer.Start();
         PlayButton.Content = "Pause";
       }
@@ -267,6 +272,7 @@ namespace TheGameOfLife
       }
 
       _generation = 0;
+      ResetCycleDetection();
       RefreshBoard();
     }
 
@@ -276,12 +282,14 @@ namespace TheGameOfLife
       PlayButton.Content = "Démarrer";
       _cells = new bool[LifeBoard.Columns, LifeBoard.Rows];
       _generation = 0;
+      ResetCycleDetection();
       RefreshBoard();
     }
 
     private void OnCellClicked(int x, int y)
     {
       _cells[x, y] = !_cells[x, y];
+      ResetCycleDetection();
       RefreshBoard();
     }
 
@@ -303,6 +311,62 @@ namespace TheGameOfLife
       _cells = next;
       _generation++;
       RefreshBoard();
+
+      if (_timer.IsEnabled && HasRepeatedState())
+      {
+        _timer.Stop();
+        PlayButton.Content = "Démarrer";
+      }
+    }
+
+    private void ResetCycleDetection()
+    {
+      _seenStates.Clear();
+      _stateHistory.Clear();
+      RememberCurrentState();
+    }
+
+    private bool HasRepeatedState()
+    {
+      var state = CreateStateKey();
+      if (_seenStates.Contains(state))
+      {
+        return true;
+      }
+
+      _seenStates.Add(state);
+      _stateHistory.Enqueue(state);
+      if (_stateHistory.Count > MaxRememberedStates)
+      {
+        _seenStates.Remove(_stateHistory.Dequeue());
+      }
+
+      return false;
+    }
+
+    private void RememberCurrentState()
+    {
+      var state = CreateStateKey();
+      _seenStates.Add(state);
+      _stateHistory.Enqueue(state);
+    }
+
+    private string CreateStateKey()
+    {
+      var state = new byte[(LifeBoard.Columns * LifeBoard.Rows + 7) / 8];
+      for (var y = 0; y < LifeBoard.Rows; y++)
+      {
+        for (var x = 0; x < LifeBoard.Columns; x++)
+        {
+          if (_cells[x, y])
+          {
+            var index = y * LifeBoard.Columns + x;
+            state[index / 8] |= (byte)(1 << (index % 8));
+          }
+        }
+      }
+
+      return Convert.ToBase64String(state);
     }
 
     private int CountLiveNeighbors(int cellX, int cellY)
