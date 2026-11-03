@@ -12,3 +12,5 @@ Une implémentation WPF de l'automate cellulaire de Conway.
 - Réglez la vitesse avec le curseur (de 1 à 20 générations par seconde).
 
 La grille mesure 60 × 35 cellules. Les cellules situées au-delà de ses bords sont considérées comme mortes. Une cellule vivante survit avec deux ou trois voisines vivantes ; une cellule morte naît avec exactement trois voisines vivantes.
+
+La taille et la position de la fenêtre sont enregistrées à sa fermeture dans `window-settings.json`, à côté de l'application, puis restaurées au prochain démarrage. L'application doit donc avoir le droit d'écriture dans son répertoire.

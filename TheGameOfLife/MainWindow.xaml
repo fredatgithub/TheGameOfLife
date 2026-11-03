@@ -15,7 +15,7 @@
 
         <StackPanel Grid.Row="0" Margin="0,0,0,20">
             <TextBlock Text="Le Jeu de la vie" FontSize="30" FontWeight="SemiBold" />
-            <TextBlock Text="Un automate cellulaire imaginé par John Conway"
+            <TextBlock Text="Un automate cellulaire imaginé par John Conway en 1970"
                        Margin="0,4,0,0" Foreground="#9FB2B8" FontSize="14" />
         </StackPanel>
 
